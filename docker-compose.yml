@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: middleware
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  middleware:
+    build:
+      context: .
+      dockerfile: Dockerfile.middleware
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/middleware
+      JWT_SECRET_KEY: change-me-please
+      API_KEYS: local-api-key
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: INFO
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.generator
+    environment:
+      TARGET: http://middleware:5000/process
+      API_KEY: local-api-key
+    depends_on:
+      middleware:
+        condition: service_started
+    restart: "no"
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY requirements_middleware.txt ./
+RUN pip install --no-cache-dir -r requirements_middleware.txt
+COPY .env.example ./
+COPY app.py anonymizer.py enricher.py formatters.py scenarios.py performance_test.py config.py extensions.py models.py auth.py .
+
+EXPOSE 5000
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app", "--workers", "2"]

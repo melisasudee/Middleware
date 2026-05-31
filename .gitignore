@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+.env
+.venv/
+venv/
+*.sqlite3
+*.db
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# VS Code
+.vscode/
+
+# Pytest
+htmlcov/
+.coverage
+.cache/
+.pytest_cache/
+
+# GitHub
+.github/

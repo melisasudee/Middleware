@@ -1,0 +1,83 @@
+{
+  "target": "http://localhost:5000/process",
+  "executed_at": "2026-05-31T09:09:06.505782Z",
+  "results": {
+    "latency": {
+      "name": "Latency Testi",
+      "total_requests": 50,
+      "successful_requests": 50,
+      "failed_requests": 0,
+      "min_latency": 0.0022420883178710938,
+      "max_latency": 0.004487037658691406,
+      "avg_latency": 0.002868332862854004,
+      "median_latency": 0.002582073211669922,
+      "throughput_rps": 348.63457200186855
+    },
+    "throughput": {
+      "name": "Throughput Testi",
+      "total_requests": 50,
+      "successful_requests": 50,
+      "failed_requests": 0,
+      "min_latency": 0.004404306411743164,
+      "max_latency": 0.03868246078491211,
+      "avg_latency": 0.020710182189941407,
+      "median_latency": 0.019184350967407227,
+      "throughput_rps": 48.28542746889419
+    },
+    "batch": {
+      "name": "Batch Testi",
+      "total_requests": 5,
+      "successful_requests": 5,
+      "failed_requests": 0,
+      "min_latency": 0.005388021469116211,
+      "max_latency": 0.006949901580810547,
+      "avg_latency": 0.006183338165283203,
+      "median_latency": 0.006124973297119141,
+      "throughput_rps": 161.7249410059071
+    },
+    "stress": {
+      "name": "Stress Testi",
+      "levels": [
+        {
+          "level": 25,
+          "name": "Stress Testi 25",
+          "total_requests": 25,
+          "successful_requests": 25,
+          "failed_requests": 0,
+          "min_latency": 0.0021610260009765625,
+          "max_latency": 0.0040247440338134766,
+          "avg_latency": 0.0029456520080566404,
+          "median_latency": 0.0028200149536132812,
+          "throughput_rps": 339.4834139487299,
+          "duration_seconds": 0.07565116882324219
+        },
+        {
+          "level": 50,
+          "name": "Stress Testi 50",
+          "total_requests": 50,
+          "successful_requests": 50,
+          "failed_requests": 0,
+          "min_latency": 0.0023348331451416016,
+          "max_latency": 0.004151344299316406,
+          "avg_latency": 0.0028910112380981447,
+          "median_latency": 0.0026644468307495117,
+          "throughput_rps": 345.8997276876209,
+          "duration_seconds": 0.14839625358581543
+        },
+        {
+          "level": 100,
+          "name": "Stress Testi 100",
+          "total_requests": 100,
+          "successful_requests": 100,
+          "failed_requests": 0,
+          "min_latency": 0.0022258758544921875,
+          "max_latency": 0.0035903453826904297,
+          "avg_latency": 0.0026848840713500975,
+          "median_latency": 0.0025388002395629883,
+          "throughput_rps": 372.45555987717137,
+          "duration_seconds": 0.2756648063659668
+        }
+      ]
+    }
+  }
+}

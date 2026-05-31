@@ -1,0 +1,8 @@
+FROM python:3.12-slim
+
+WORKDIR /generator
+COPY requirements_generator.txt ./
+RUN pip install --no-cache-dir -r requirements_generator.txt
+COPY generator.py data_generator.py ./
+
+CMD ["python", "generator.py"]
