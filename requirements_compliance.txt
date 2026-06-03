@@ -1,3 +1,6 @@
+# GDPR/KVKK Compliance Dashboard Requirements
+# Simplified and tested version
+
 # Core Flask
 Flask>=3.0.0
 Werkzeug>=2.3.0
@@ -15,13 +18,8 @@ cryptography>=40.0.0
 python-dotenv>=1.0.0
 requests>=2.30.0
 
-# HTTP Server
+# HTTP Client
 gunicorn>=20.1.0
 
 # Rate limiting
 Flask-Limiter>=3.0.0
-# Scanning & Analysis
-bandit==1.7.4
-safety>=3.8.1
-pip-audit==2.6.1
-

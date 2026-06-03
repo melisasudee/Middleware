@@ -32,6 +32,7 @@ Proje başlarken Docker ve Docker Compose kurulu olmalıdır.
 - `GET /health` - servis sağlığını kontrol eder
 - `GET /dashboard` - basit bir dashboard sunar
 - `POST /process` - tek bir log kaydı işler
+- `POST /api/process` - `/process` için API yolu alias desteği sağlar
 - `POST /batch` - birden fazla log kaydını toplu işler
 - `GET /stats` - işlenmiş loglara ait istatistikleri döner
 - `GET /export` - tüm işlenmiş logları indirir (`?format=json|csv|html` ve `?limit=<n>`)
@@ -41,12 +42,18 @@ Proje başlarken Docker ve Docker Compose kurulu olmalıdır.
 
 ### Generator
 
-`generator.py`, senaryoya dayalı test logları üretir ve middleware API'sine POST eder. Bu sayede sistemin işleyişini test etmek kolaylaşır.
+`generator.py`, senaryo tabanlı test logları üretir ve middleware API'sine POST eder. Generator konteyneri `5001` portunda çalışır ve `POST /api/generate` üzerinden tetiklenebilir.
 Kullanım örneği:
 ```bash
 python generator.py --scenario normal
 python generator.py --scenario burst
 python generator.py --target http://localhost:5000/process --scenario extreme
+```
+Konteynerde HTTP yoluyla çalıştırmak için:
+```bash
+curl -X POST http://localhost:5001/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"scenario":"high_load","count":100,"api_key":"local-api-key"}'
 ```
 ## Dosya Açıklamaları
 

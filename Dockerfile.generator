@@ -1,8 +1,33 @@
 FROM python:3.12-slim
 
 WORKDIR /generator
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
 COPY requirements_generator.txt ./
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements_generator.txt
+
+# Copy generator files
 COPY generator.py data_generator.py ./
 
-CMD ["python", "generator.py"]
+# Create output directory
+RUN mkdir -p /generator/logs
+
+# Default generator settings
+ENV TARGET=http://middleware:5000/api/process
+ENV API_KEY=local-api-key
+ENV SCENARIO=normal
+ENV COUNT=100
+ENV MODE=server
+ENV PORT=5001
+ENV AUTO_GENERATE=true
+ENV AUTO_GENERATE_LOOP=false
+ENV AUTO_GENERATE_DELAY=5
+
+EXPOSE 5001
+
+CMD ["python", "generator.py", "--mode", "server"]

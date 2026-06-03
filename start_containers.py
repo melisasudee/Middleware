@@ -90,7 +90,7 @@ def start_middleware():
 def start_generator():
     print(f"[ADIM 5/5] Generator container başlatılıyor...")
     run(
-        f"docker run -d --name {GENERATOR_CONTAINER} --network {NETWORK_NAME} {GENERATOR_IMAGE}"
+        f"docker run -d --name {GENERATOR_CONTAINER} --network {NETWORK_NAME} --network-alias generator -p 5001:5001 -e TARGET=http://middleware:5000/api/process -e API_KEY=local-api-key -e MODE=server -e PORT=5001 {GENERATOR_IMAGE}"
     )
     print("✅ Generator container başlatıldı")
 
