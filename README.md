@@ -1,172 +1,166 @@
-# Data Middleware Projesi
+# Middleware Data Processing Platform
 
-Bu proje, bir e-ticaret uygulamasına yönelik veri middleware mimarisinin örnek implementasyonunu içerir. Aşağıdaki katmanlar yer alır:
-
-- `middleware` servisi: Gelen logları işler, anonimleştirir, zenginleştirir ve depolar.
-- `generator` servisi: Test verisi üretir ve middleware API'sine gönderir.
-- `dashboard` ve `API` endpointleri: sistem durumunu ve kayıtlı logları görüntüler.
-
-## Hızlı Başlangıç
-
-1. Proje klasörüne geçin:
-   ```bash
-   cd /home/miela/FinalProje
-   ```
-2. `QUICKSTART.sh` çalıştırılabilir hale getirin:
-   ```bash
-   chmod +x QUICKSTART.sh
-   ```
-3. Otomatik başlangıcı başlatın:
-   ```bash
-   ./QUICKSTART.sh
-   ```
-
-Proje başlarken Docker ve Docker Compose kurulu olmalıdır.
+Finansal işlem loglarını alan, PII alanlarını anonimleştiren, risk skoruyla zenginleştiren ve rol bazlı REST API + gerçek zamanlı dashboard sunan bir Flask middleware platformu.
 
 ## Servisler
 
-### Middleware
+| Servis | Port | Konteyner |
+|---|---|---|
+| Middleware (Ana API) | 5000 | `finalproje-middleware` |
+| Data Generator | 5001 | `finalproje-generator` |
 
-`app.py` içinde tanımlanan Flask uygulaması aşağıdaki endpointleri sağlar:
+## Hızlı Başlangıç
 
-- `GET /health` - servis sağlığını kontrol eder
-- `GET /dashboard` - basit bir dashboard sunar
-- `POST /process` - tek bir log kaydı işler
-- `POST /api/process` - `/process` için API yolu alias desteği sağlar
-- `POST /batch` - birden fazla log kaydını toplu işler
-- `GET /stats` - işlenmiş loglara ait istatistikleri döner
-- `GET /export` - tüm işlenmiş logları indirir (`?format=json|csv|html` ve `?limit=<n>`)
-- `GET /logs/critical` - kritik seviyedeki logları listeler
-- `GET /logs/errors` - hata ve uyarı seviyesindeki logları listeler
-- `GET /logs/by-risk` - risk seviyesine göre gruplama yapar
+Docker ve Docker Compose kurulu olmalıdır.
 
-### Generator
-
-`generator.py`, senaryo tabanlı test logları üretir ve middleware API'sine POST eder. Generator konteyneri `5001` portunda çalışır ve `POST /api/generate` üzerinden tetiklenebilir.
-Kullanım örneği:
 ```bash
-python generator.py --scenario normal
-python generator.py --scenario burst
-python generator.py --target http://localhost:5000/process --scenario extreme
+# Stack'i derle ve başlat
+docker compose up -d --build
+
+# Sağlık kontrolü
+curl http://localhost:5000/health
+
+# Dashboard
+open http://localhost:5000
 ```
-Konteynerde HTTP yoluyla çalıştırmak için:
+
+### Veri üretme
+
 ```bash
 curl -X POST http://localhost:5001/api/generate \
   -H "Content-Type: application/json" \
-  -d '{"scenario":"high_load","count":100,"api_key":"local-api-key"}'
+  -d '{"count": 100, "scenario": "normal"}'
 ```
-## Dosya Açıklamaları
 
-- `app.py` - Flask API uygulaması
-- `anonymizer.py` - hassas alanları anonimleştirme işlevleri
-- `enricher.py` - log kayıtlarını risk ve meta verilerle zenginleştirme
-- `formatters.py` - JSON, CSV ve HTML formatlama stratejileri
-- `generator.py` - senaryo tabanlı test logu üretici
-- `data_generator.py` - veri üretim desteği ve olay şablonları
-- `scenarios.py` - senaryo bazlı test verisi ve işleme
-- `performance_test.py` - performans testi için istek üretici
-- `Dockerfile.middleware` - middleware servisi için Dockerfile
-- `Dockerfile.generator` - generator servisi için Dockerfile
-- `docker-compose.yml` - servis orkestrasyonu
-- `requirements_middleware.txt` - middleware bağımlılıkları
-- `requirements_generator.txt` - generator bağımlılıkları
-- `README.md` - proje rehberi ve kullanım talimatları
-- `FILE_MANIFEST.md` - dosya açıklamaları
-- `COPILOT_PROMPT.txt` - proje için Copilot prompt
-- `QUICKSTART.sh` - başlangıç otomasyon scripti
-- `BASLAMA_REHBERI.txt` - hızlı başlangıç adımları
-- `00_OKU_BENI_FIRST.txt` - öncelikli okunması gereken dosya
-
-## Docker ile Çalıştırma
-
-### Manuel Başlatma
+### Stack durdurma
 
 ```bash
-docker-compose build
-docker-compose up -d
+docker compose down
 ```
 
-### Docker Compose Olmazsa
+## API Endpointleri
 
-Eğer `docker-compose` veya `docker compose` yüklenemiyorsa, alternatif olarak `start_containers.py` scriptini kullanabilirsiniz.
+### Core
+
+| Method | Endpoint | Auth | Açıklama |
+|---|---|---|---|
+| GET | `/health` | - | Servis sağlık kontrolü |
+| GET | `/` `/dashboard` | - | Web dashboard |
+| GET | `/api/dashboard-stats` | - | Chart.js veri beslemesi |
+| POST | `/auth/login` | - | JWT token al |
+| POST | `/api/process` | ✅ | Tek log işle |
+| POST | `/api/batch` | ✅ | Toplu log işle |
+| GET | `/stats` | - | Özet istatistikler |
+
+### Log Sorgulama
+
+| Method | Endpoint | Auth | Açıklama |
+|---|---|---|---|
+| GET | `/logs/critical` | - | Kritik loglar |
+| GET | `/logs/errors` | - | Hata logları |
+| GET | `/logs/by-risk` | - | Risk seviyesine göre gruplu |
+
+### Export
+
+| Method | Endpoint | Auth | Açıklama |
+|---|---|---|---|
+| GET | `/export` | ✅ | Format export (`?format=json\|csv\|html`) |
+| GET | `/api/export` | ✅ | Rol bazlı export (`?role=security\|developer\|admin\|auditor\|analyst`) |
+| GET | `/format/<mode>` | - | Son logları formatla |
+
+### Compliance (GDPR/KVKK)
+
+`/compliance/dashboard`, `/compliance/metrics`, `/compliance/scores`,  
+`/compliance/data-categories`, `/compliance/rtbf-requests`,  
+`/compliance/consents`, `/compliance/access-logs`,  
+`/compliance/audit-logs`, `/compliance/violations`, `/compliance/checklist`
+
+## Kimlik Doğrulama
+
+**API Key (header):**
+```
+X-API-KEY: local-api-key
+```
+
+**API Key (query param — browser export için):**
+```
+GET /api/export?role=security&api_key=local-api-key
+```
+
+**JWT:**
+```bash
+curl -X POST http://localhost:5000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"secret"}'
+# → {"data":{"access_token":"eyJ..."},"status":"ok"}
+```
+
+## Rol Bazlı Export
+
+Dashboard'daki "Role-Based Log Export" panelinden veya API üzerinden:
+
+| Rol | Format | Kapsam |
+|---|---|---|
+| security | CSV | ERROR + CRITICAL loglar, 9 güvenlik alanı |
+| developer | JSON | ERROR/WARNING/CRITICAL, tüm alanlar |
+| admin | HTML | Tüm loglar, 8 yönetim alanı |
+| auditor | JSON (dual) | Tüm loglar, CSV + JSON envelope |
+| analyst | CSV | Tüm loglar, 9 analitik alan |
+
+## Dosya Yapısı
+
+```
+FinalProje/
+├── app.py                 # Flask uygulaması, tüm route'lar, dashboard HTML
+├── anonymizer.py          # PII anonimleştirme (mask, hash, redact)
+├── auth.py                # JWT + API Key dual auth dekoratörü
+├── compliance.py          # GDPR/KVKK uyum yöneticisi
+├── config.py              # Dev/Production konfigürasyonları
+├── data_generator.py      # Sentetik veri üretici (Flask sunucu modu)
+├── enricher.py            # Risk skoru + tag motoru
+├── extensions.py          # Flask extension başlatma (db, jwt, limiter)
+├── formatters.py          # Strategy Pattern: JSON/CSV/HTML formatter'ları
+├── init_compliance.py     # Compliance DB başlangıç verisi
+├── log_classifier.py      # Rol bazlı log sınıflandırma (5 rol)
+├── models.py              # SQLAlchemy modelleri (9 tablo)
+├── performance_test.py    # Yük testi aracı
+├── start_containers.py    # Docker yardımcı script
+├── Dockerfile.middleware  # Middleware konteyner build
+├── Dockerfile.generator   # Generator konteyner build
+├── docker-compose.yml     # Servis orkestrasyonu
+├── requirements_middleware.txt
+├── requirements_generator.txt
+├── requirements_dev.txt
+├── PROJECT_REPORT.md      # Teknik proje raporu
+└── tests/
+    ├── conftest.py
+    ├── test_app.py
+    └── test_auth.py
+```
+
+## Testler
 
 ```bash
-python3 start_containers.py setup
+# venv aktifle
+source .venv/bin/activate
+
+# testleri çalıştır
+python -m pytest tests/ -v
 ```
 
-### Start Containers Yardımcı Scripti
-
-- `python3 start_containers.py setup` - network, image ve container kurulumu
-- `python3 start_containers.py status` - container durumu
-- `python3 start_containers.py stop` - container'ları durdur
-- `python3 start_containers.py remove` - container'ları sil
-- `python3 start_containers.py logs middleware` - middleware loglarını göster
-- `python3 start_containers.py logs generator` - generator loglarını göster
-
-### Durum Kontrol
+## Performans Testi
 
 ```bash
-docker ps --filter "name=ceng302_"
-curl http://localhost:5000/health
+python performance_test.py \
+  --target http://localhost:5000/api/process \
+  --count 50 --workers 10 \
+  --batch-size 20 --batch-count 5
 ```
 
-### Container'ları Durdurma
+## Container Durumu
 
 ```bash
-python3 start_containers.py stop
+docker ps
+docker logs finalproje-middleware --tail 50
+docker logs finalproje-generator  --tail 50
 ```
-
-## Test ve Performans
-
-### Performans Testi
-
-```bash
-python performance_test.py --target http://localhost:5000/process --count 50 --workers 10 --batch-size 20 --batch-count 5
-```
-
-Bu script aşağıdaki testleri çalıştırır:
-- Latency testi
-- Throughput testi
-- Batch işleme testi
-- Stress testi
-
-Ayrıca interaktif menü ile çalıştırmak için:
-
-```bash
-python performance_test.py --interactive
-```
-
-Bu seçenekten sonra menüde aşağıdakiler seçilebilir:
-1. Latency Test
-2. Throughput Test
-3. Batch Test
-4. Stress Test
-5. Tüm Testleri Çalıştır
-
-Rapor JSON olarak `performance_report_YYYYMMDD_HHMMSS.json` formatında kaydedilir.
-
-### Senaryolar
-
-```bash
-python scenarios.py
-```
-
-### Formatlama
-
-`app.py` üzerinde eklenen `/format/<mode>` endpointi ile JSON, CSV ve HTML çıktısı alınabilir.
-
-## Katkı ve Geliştirme
-
-- `anonymizer.py` alanları daha baştan sona maskeler.
-- `enricher.py` risk skorları üretir ve davranışsal zenginleştirme ekler.
-- `formatters.py` strateji desenini kullanarak farklı çıktı formatları sağlar.
-
-Dokümantasyonu ve komponentleri genişletmek isterseniz, `README.md` içinde yer alan yapılandırma adımlarını kullanabilirsiniz.
-
----
-
-## Notlar
-
-`QUICKSTART.sh` ile otomatik kurulum yaparken, proje dosyalarının tamamının aynı dizinde olduğundan emin olun.
-
-Bu proje modüler bir veri middleware örneğidir ve gerçek bir üretim ortamına hazır hale getirilmeden önce ek güvenlik, hata yönetimi ve servis izleme katmanları eklenmelidir.
