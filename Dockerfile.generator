@@ -12,7 +12,7 @@ COPY requirements_generator.txt ./
 RUN pip install --no-cache-dir -r requirements_generator.txt
 
 # Copy generator files
-COPY generator.py data_generator.py ./
+COPY data_generator.py ./
 
 # Create output directory
 RUN mkdir -p /generator/logs
@@ -30,4 +30,4 @@ ENV AUTO_GENERATE_DELAY=5
 
 EXPOSE 5001
 
-CMD ["python", "generator.py", "--mode", "server"]
+CMD ["python", "data_generator.py", "--mode", "server"]

@@ -12,8 +12,8 @@ COPY requirements_middleware.txt ./
 RUN pip install --no-cache-dir -r requirements_middleware.txt
 
 # Copy application files
-COPY app.py anonymizer.py enricher.py formatters.py scenarios.py \
-      performance_test.py config.py extensions.py models.py auth.py \
+COPY app.py anonymizer.py enricher.py formatters.py log_classifier.py \
+      config.py extensions.py models.py auth.py \
       compliance.py init_compliance.py ./
 
 # Create data directory

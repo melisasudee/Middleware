@@ -1,23 +1,22 @@
-import os
-
 import pytest
 
-from app import create_app
+from app import app as flask_app
 from extensions import db
-
-
-def pytest_configure():
-    os.environ["FLASK_ENV"] = "testing"
-    os.environ["JWT_SECRET_KEY"] = "test-secret"
-    os.environ["API_KEYS"] = "test-api-key"
 
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app()
-    with app.app_context():
+    flask_app.config.update({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "JWT_SECRET_KEY": "test-secret",
+        "API_KEYS": ["test-api-key"],
+        "ADMIN_USERNAME": "admin",
+        "ADMIN_PASSWORD": "secret",
+    })
+    with flask_app.app_context():
         db.create_all()
-        yield app
+        yield flask_app
         db.session.remove()
         db.drop_all()
 

@@ -26,3 +26,8 @@ htmlcov/
 # GitHub
 .github/
 .secrets.json
+
+# Generated artifacts
+performance_report_*.json
+report.html
+logs.csv

@@ -26,10 +26,11 @@ def build_payload(index: int) -> Dict[str, object]:
     }
 
 
-def send_request(target: str, payload: Dict[str, object], timeout: int = 15) -> Tuple[bool, float]:
+def send_request(target: str, payload: Dict[str, object], timeout: int = 15, api_key: str = "local-api-key") -> Tuple[bool, float]:
     start = time.time()
     try:
-        response = requests.post(target, json=payload, timeout=timeout)
+        headers = {"X-API-KEY": api_key} if api_key else {}
+        response = requests.post(target, json=payload, headers=headers, timeout=timeout)
         response.raise_for_status()
         latency = time.time() - start
         return True, latency
